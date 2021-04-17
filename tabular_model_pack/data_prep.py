@@ -28,14 +28,25 @@ class DataPrep:
             self.label_encoding()
         return self.data
 
+    def cat_to_embed(self, max_embed_dim=50):
+        embedding_details = []
+        for col in self.data.columns:
+            if col in self.categorical_var_list:
+                num_unique_values = int(self.data[col].nunique())
+                embedding_details.append(((num_unique_values,
+                                           int(min(np.ceil(num_unique_values/2), max_embed_dim)))))
+        return embedding_details
+
 
 if __name__ == '__main__':
-    dt = pd.DataFrame({'category': ['a', 'b', 'c', 'a', 'a', 'c'],
-                       'class': ['I', 'IV', None, 'I', 'I', 'V']
+    dt = pd.DataFrame({'category': ['a', 'b', 'c', 'a', 'a', 'c', 'd', 'e', 'c'],
+                       'class': ['I', 'IV', None, 'I', 'I', 'V', 'VI', 'VII', None]
                        })
     test1 = DataPrep(data=dt, categorical_var_list=dt.columns)
     t1_dt = test1.run_preprocessing(treat_na=True)
     print(t1_dt['class'].value_counts())
     test2 = DataPrep(data=dt, categorical_var_list=dt.columns)
-    t2_dt = test1.run_preprocessing(treat_na=True, label_encode=True)
+    t2_dt = test2.run_preprocessing(treat_na=True, label_encode=True)
     print(t2_dt['class'].value_counts())
+    emb = test1.cat_to_embed()
+    print('Embedding details :', emb)
